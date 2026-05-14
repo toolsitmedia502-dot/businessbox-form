@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusinessBOX — Customer Onboarding Form</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-dark: #1F4E79;
+    --blue-mid: #2E75B6;
+    --blue-light: #E6F1FB;
+    --blue-accent: #185FA5;
+    --green: #27500A;
+    --green-light: #EAF3DE;
+    --red-light: #FCE4D6;
+    --red-text: #993C1D;
+    --gray-bg: #F7F8FA;
+    --gray-border: #E2E6EA;
+    --text-primary: #1a1a2e;
+    --text-secondary: #5a6475;
+    --white: #ffffff;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(31,78,121,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--gray-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--blue-dark);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 12px; }
+  .topbar-logo {
+    background: var(--white);
+    color: var(--blue-dark);
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 400;
+    letter-spacing: -0.3px;
+  }
+  .topbar-title { color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 400; }
+  .topbar-badge {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+
+  /* PROGRESS */
+  .progress-wrap { background: rgba(255,255,255,0.12); height: 4px; }
+  .progress-fill {
+    height: 100%;
+    background: #5BC4F5;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+
+  /* MAIN */
+  .main { max-width: 600px; margin: 0 auto; padding: 32px 16px 64px; }
+
+  /* STEP INDICATOR */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 28px;
+  }
+  .step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gray-border);
+    transition: all 0.3s;
+  }
+  .step-dot.active { background: var(--blue-mid); width: 24px; border-radius: 4px; }
+  .step-dot.done { background: var(--blue-mid); opacity: 0.4; }
+
+  /* CARD */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 28px 24px;
+    margin-bottom: 16px;
+    border: 1px solid var(--gray-border);
+    display: none;
+    animation: slideUp 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .card.active { display: block; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-header { margin-bottom: 24px; }
+  .card-step-label { font-size: 11px; font-weight: 600; color: var(--blue-mid); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .card-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--blue-dark); margin-bottom: 6px; }
+  .card-subtitle { font-size: 13px; color: var(--text-secondary); }
+
+  /* FIELD */
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+  .field input, .field textarea {
+    width: 100%;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+    background: var(--white);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .field input:focus, .field textarea:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(46,117,182,0.1); }
+  .field textarea { min-height: 80px; resize: vertical; }
+
+  /* CHIPS */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 8px 16px;
+    border-radius: 99px;
+    border: 1.5px solid var(--gray-border);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    background: var(--white);
+    color: var(--text-secondary);
+    transition: all 0.18s;
+    user-select: none;
+    font-weight: 400;
+  }
+  .chip:hover { border-color: var(--blue-mid); color: var(--blue-mid); background: var(--blue-light); }
+  .chip.selected { background: var(--blue-dark); border-color: var(--blue-dark); color: white; font-weight: 500; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--gray-border); margin: 20px 0; }
+
+  /* INDUSTRY SUB QUESTIONS */
+  .sub-section {
+    background: var(--gray-bg);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-top: 16px;
+    border: 1px solid var(--gray-border);
+    display: none;
+    animation: slideUp 0.3s ease;
+  }
+  .sub-section.active { display: block; }
+  .sub-title { font-size: 12px; font-weight: 600; color: var(--blue-mid); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; }
+
+  /* BUTTONS */
+  .btn-next {
+    width: 100%;
+    background: var(--blue-dark);
+    color: white;
+    border: none;
+    padding: 13px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-next:hover { background: var(--blue-accent); }
+  .btn-next:active { transform: scale(0.98); }
+  .btn-next:disabled { background: #aab3c0; cursor: not-allowed; }
+  .btn-submit {
+    width: 100%;
+    background: linear-gradient(135deg, #1F4E79, #2E75B6);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: 0.2px;
+  }
+  .btn-submit:hover { opacity: 0.92; }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-new {
+    width: 100%;
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 13px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: opacity 0.2s;
+  }
+  .btn-new:hover { opacity: 0.88; }
+
+  /* STATUS MESSAGES */
+  .msg-saving {
+    background: var(--blue-light);
+    border: 1px solid #85B7EB;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--blue-accent);
+    text-align: center;
+    margin-top: 12px;
+    display: none;
+  }
+  .msg-error {
+    background: #FCEBEB;
+    border: 1px solid #F09595;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #A32D2D;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* SUCCESS */
+  .success-header {
+    background: var(--green);
+    border-radius: var(--radius);
+    padding: 28px;
+    text-align: center;
+    margin-bottom: 16px;
+    color: white;
+  }
+  .success-icon { font-size: 48px; margin-bottom: 12px; }
+  .success-header h2 { font-family: 'DM Serif Display', serif; font-size: 24px; margin-bottom: 6px; }
+  .success-header p { font-size: 13px; opacity: 0.85; }
+
+  /* SUMMARY */
+  .summary-wrap { background: white; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--gray-border); overflow: hidden; }
+  .summary-header { background: var(--blue-dark); padding: 14px 20px; color: white; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+  .summary-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 20px; border-bottom: 1px solid var(--gray-border); gap: 16px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { font-size: 12px; color: var(--text-secondary); min-width: 130px; padding-top: 1px; }
+  .summary-value { font-size: 13px; font-weight: 500; color: var(--text-primary); text-align: right; }
+
+  /* TAG */
+  .required-tag {
+    display: inline-block;
+    background: var(--red-light);
+    color: var(--red-text);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-left: 8px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* FOOTER */
+  .footer { text-align: center; font-size: 11px; color: var(--text-secondary); margin-top: 32px; opacity: 0.6; }
+
+  @media (max-width: 480px) {
+    .card { padding: 20px 16px; }
+    .card-title { font-size: 18px; }
+    .main { padding: 20px 12px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">BusinessBOX</div>
+    <div class="topbar-title">IT Media Zone — Customer Onboarding</div>
+  </div>
+  <div class="topbar-badge">Sales Form</div>
+</div>
+<div class="progress-wrap">
+  <div class="progress-fill" id="progress"></div>
+</div>
+
+<div class="main">
+
+  <!-- Step dots -->
+  <div class="step-indicator" id="step-dots"></div>
+
+  <!-- STEP 1: Basic Info -->
+  <div class="card active" id="step1">
+    <div class="card-header">
+      <div class="card-step-label">Step 1 of 6</div>
+      <div class="card-title">Company Basic Info</div>
+      <div class="card-subtitle">Customer ki bunyadi maloomat darj karein <span class="required-tag">Zaruri</span></div>
+    </div>
+    <div class="field"><label>Company / Business ka Naam</label><input type="text" id="company_name" placeholder="e.g. Al-Habib Traders"></div>
+    <div class="field"><label>Contact Person ka Naam</label><input type="text" id="contact_name" placeholder="e.g. Muhammad Ali"></div>
+    <div class="field"><label>Contact Number</label><input type="tel" id="contact_num" placeholder="03XX-XXXXXXX"></div>
+    <div class="field"><label>Email Address (agar ho)</label><input type="email" id="email" placeholder="example@email.com"></div>
+    <div class="field"><label>City / Shehar</label><input type="text" id="city" placeholder="e.g. Karachi"></div>
+    <div class="field">
+      <label>Branches / Locations kitni hain?</label>
+      <div class="chip-group" id="branches">
+        <div class="chip" onclick="pick(this,'branches')">Sirf 1</div>
+        <div class="chip" onclick="pick(this,'branches')">2 – 5</div>
+        <div class="chip" onclick="pick(this,'branches')">5 – 10</div>
+        <div class="chip" onclick="pick(this,'branches')">10+</div>
+      </div>
+    </div>
+    <button class="btn-next" onclick="go(2)">Agla &#8594;</button>
+  </div>
+
+  <!-- STEP 2: Business Nature -->
+  <div class="card" id="step2">
+    <div class="card-header">
+      <div class="card-step-label">Step 2 of 6</div>
+      <div class="card-title">Business Nature</div>
+      <div class="card-subtitle">Business kya karta hai aur kaise bechta hai</div>
+    </div>
+    <div class="field">
+      <label>Business Nature — ek ya zyada select karein</label>
+      <div class="chip-group" id="nature">
+        <div class="chip" onclick="multi(this,'nature')">Manufacturer</div>
+        <div class="chip" onclick="multi(this,'nature')">Importer</div>
+        <div class="chip" onclick="multi(this,'nature')">Exporter</div>
+        <div class="chip" onclick="multi(this,'nature')">Distributor</div>
+        <div class="chip" onclick="multi(this,'nature')">Wholesaler</div>
+        <div class="chip" onclick="multi(this,'nature')">Trader / General</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Selling Type</label>
+      <div class="chip-group" id="selltype">
+        <div class="chip" onclick="pick(this,'selltype')">Sirf Retail</div>
+        <div class="chip" onclick="pick(this,'selltype')">Sirf Wholesale</div>
+        <div class="chip" onclick="pick(this,'selltype')">Dono (Retail + Wholesale)</div>
+      </div>
+    </div>
+    <button class="btn-next" onclick="go(3)">Agla &#8594;</button>
+  </div>
+
+  <!-- STEP 3: Industry -->
+  <div class="card" id="step3">
+    <div class="card-header">
+      <div class="card-step-label">Step 3 of 6</div>
+      <div class="card-title">Industry</div>
+      <div class="card-subtitle">Customer ka business field select karein</div>
+    </div>
+    <div class="field">
+      <label>Industry kya hai?</label>
+      <div class="chip-group" id="industry">
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Garments / Textile</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Restaurant / Food</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Pharmacy / Medical</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Electronics / IT</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Supermart / Grocery</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Jewellery / Watches</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">FMCG / Distribution</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Chemical / Pharma Mfg</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Printing / Packaging</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Sweets / Bakers</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Footwear / Bags</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Healthcare / Hospital</div>
+        <div class="chip" onclick="pick(this,'industry');showIQ()">Other</div>
+      </div>
+    </div>
+
+    <!-- Dynamic Sub Questions -->
+    <div class="sub-section" id="iq-garments">
+      <div class="sub-title">Garments / Textile — Additional Info</div>
+      <div class="field"><label>Colors aur Sizes manage karne hain?</label><div class="chip-group" id="g1"><div class="chip" onclick="pick(this,'g1')">Haan</div><div class="chip" onclick="pick(this,'g1')">Nahi</div></div></div>
+      <div class="field"><label>Stitching / Tailoring section bhi hai?</label><div class="chip-group" id="g2"><div class="chip" onclick="pick(this,'g2')">Haan</div><div class="chip" onclick="pick(this,'g2')">Nahi</div></div></div>
+      <div class="field"><label>Barcode labeling chahiye?</label><div class="chip-group" id="g3"><div class="chip" onclick="pick(this,'g3')">Haan</div><div class="chip" onclick="pick(this,'g3')">Nahi</div></div></div>
+      <div class="field"><label>Online (E-Commerce) bhi bechna hai?</label><div class="chip-group" id="g4"><div class="chip" onclick="pick(this,'g4')">Haan</div><div class="chip" onclick="pick(this,'g4')">Nahi</div></div></div>
+      <div class="field"><label>Fabric unstiched bhi bechte hain? (meter/yard)</label><div class="chip-group" id="g5"><div class="chip" onclick="pick(this,'g5')">Haan</div><div class="chip" onclick="pick(this,'g5')">Nahi</div></div></div>
+    </div>
+
+    <div class="sub-section" id="iq-restaurant">
+      <div class="sub-title">Restaurant / Food — Additional Info</div>
+      <div class="field"><label>Order types kaunse hain?</label><div class="chip-group" id="r1"><div class="chip" onclick="multi(this,'r1')">Dine In</div><div class="chip" onclick="multi(this,'r1')">Delivery</div><div class="chip" onclick="multi(this,'r1')">Takeaway</div><div class="chip" onclick="multi(this,'r1')">Drive Thru</div></div></div>
+      <div class="field"><label>FoodPanda / Bykea integration chahiye?</label><div class="chip-group" id="r2"><div class="chip" onclick="pick(this,'r2')">Haan</div><div class="chip" onclick="pick(this,'r2')">Nahi</div></div></div>
+      <div class="field"><label>Kitchen Display System (KDS) chahiye?</label><div class="chip-group" id="r3"><div class="chip" onclick="pick(this,'r3')">Haan</div><div class="chip" onclick="pick(this,'r3')">Nahi</div></div></div>
+      <div class="field"><label>Tables kitni hain? (Dine In ke liye)</label><input type="text" id="r4" placeholder="e.g. 20 tables, 2 floors"></div>
+      <div class="field"><label>Multiple kitchen counters hain?</label><div class="chip-group" id="r5"><div class="chip" onclick="pick(this,'r5')">Haan</div><div class="chip" onclick="pick(this,'r5')">Nahi</div></div></div>
+    </div>
+
+    <div class="sub-section" id="iq-pharmacy">
+      <div class="sub-title">Pharmacy / Medical — Additional Info</div>
+      <div class="field"><label>Batch No aur Expiry manage karna hai?</label><div class="chip-group" id="p1"><div class="chip" onclick="pick(this,'p1')">Haan</div><div class="chip" onclick="pick(this,'p1')">Nahi</div></div></div>
+      <div class="field"><label>Generic Name / Formula management chahiye?</label><div class="chip-group" id="p2"><div class="chip" onclick="pick(this,'p2')">Haan</div><div class="chip" onclick="pick(this,'p2')">Nahi</div></div></div>
+      <div class="field"><label>Home Delivery service hai?</label><div class="chip-group" id="p3"><div class="chip" onclick="pick(this,'p3')">Haan</div><div class="chip" onclick="pick(this,'p3')">Nahi</div></div></div>
+      <div class="field"><label>Doctor prescription record chahiye?</label><div class="chip-group" id="p4"><div class="chip" onclick="pick(this,'p4')">Haan</div><div class="chip" onclick="pick(this,'p4')">Nahi</div></div></div>
+    </div>
+
+    <div class="sub-section" id="iq-fmcg">
+      <div class="sub-title">FMCG / Distribution — Additional Info</div>
+      <div class="field"><label>S&amp;D Mobile App chahiye? (field order booking)</label><div class="chip-group" id="f1"><div class="chip" onclick="pick(this,'f1')">Haan</div><div class="chip" onclick="pick(this,'f1')">Nahi</div></div></div>
+      <div class="field"><label>Multiple warehouses / godowns hain?</label><div class="chip-group" id="f2"><div class="chip" onclick="pick(this,'f2')">Haan</div><div class="chip" onclick="pick(this,'f2')">Nahi</div></div></div>
+      <div class="field"><label>Route management chahiye?</label><div class="chip-group" id="f3"><div class="chip" onclick="pick(this,'f3')">Haan</div><div class="chip" onclick="pick(this,'f3')">Nahi</div></div></div>
+      <div class="field"><label>Van / vehicle tracking chahiye?</label><div class="chip-group" id="f4"><div class="chip" onclick="pick(this,'f4')">Haan</div><div class="chip" onclick="pick(this,'f4')">Nahi</div></div></div>
+    </div>
+
+    <div class="sub-section" id="iq-supermart">
+      <div class="sub-title">Supermart / Grocery — Additional Info</div>
+      <div class="field"><label>Shelf / Rack wise product display chahiye?</label><div class="chip-group" id="s1"><div class="chip" onclick="pick(this,'s1')">Haan</div><div class="chip" onclick="pick(this,'s1')">Nahi</div></div></div>
+      <div class="field"><label>Expiry management chahiye?</label><div class="chip-group" id="s2"><div class="chip" onclick="pick(this,'s2')">Haan</div><div class="chip" onclick="pick(this,'s2')">Nahi</div></div></div>
+      <div class="field"><label>Home delivery service hai?</label><div class="chip-group" id="s3"><div class="chip" onclick="pick(this,'s3')">Haan</div><div class="chip" onclick="pick(this,'s3')">Nahi</div></div></div>
+    </div>
+
+    <div class="sub-section" id="iq-jewellery">
+      <div class="sub-title">Jewellery / Watches — Additional Info</div>
+      <div class="field"><label>Gold / Silver rate auto-update chahiye?</label><div class="chip-group" id="j1"><div class="chip" onclick="pick(this,'j1')">Haan</div><div class="chip" onclick="pick(this,'j1')">Nahi</div></div></div>
+      <div class="field"><label>Making charges manage karne hain?</label><div class="chip-group" id="j2"><div class="chip" onclick="pick(this,'j2')">Haan</div><div class="chip" onclick="pick(this,'j2')">Nahi</div></div></div>
+      <div class="field"><label>Repair / service management chahiye?</label><div class="chip-group" id="j3"><div class="chip" onclick="pick(this,'j3')">Haan</div><div class="chip" onclick="pick(this,'j3')">Nahi</div></div></div>
+    </div>
+
+    <div class="sub-section" id="iq-other">
+      <div class="sub-title">Additional Info</div>
+      <div class="field"><label>Business ki special requirements</label><textarea id="special_req" placeholder="Yahan likhen..."></textarea></div>
+    </div>
+
+    <button class="btn-next" id="btn-step3" onclick="go(4)" style="display:none;margin-top:16px">Agla &#8594;</button>
+  </div>
+
+  <!-- STEP 4: Modules -->
+  <div class="card" id="step4">
+    <div class="card-header">
+      <div class="card-step-label">Step 4 of 6</div>
+      <div class="card-title">Modules Selection</div>
+      <div class="card-subtitle">Customer ko kaun se modules chahiye?</div>
+    </div>
+    <div class="field">
+      <label>Modules — jo applicable hain select karein</label>
+      <div class="chip-group" id="modules">
+        <div class="chip" onclick="multi(this,'modules')">Sales Management</div>
+        <div class="chip" onclick="multi(this,'modules')">Purchase Management</div>
+        <div class="chip" onclick="multi(this,'modules')">Inventory / Stock</div>
+        <div class="chip" onclick="multi(this,'modules')">Accounts / Finance</div>
+        <div class="chip" onclick="multi(this,'modules')">HR / Payroll (HCM)</div>
+        <div class="chip" onclick="multi(this,'modules')">Order Management</div>
+        <div class="chip" onclick="multi(this,'modules')">E-Commerce</div>
+        <div class="chip" onclick="multi(this,'modules')">S&amp;D Mobile App</div>
+        <div class="chip" onclick="multi(this,'modules')">Promotions / Loyalty</div>
+        <div class="chip" onclick="multi(this,'modules')">Supply Chain</div>
+        <div class="chip" onclick="multi(this,'modules')">Production</div>
+        <div class="chip" onclick="multi(this,'modules')">Warranty Management</div>
+        <div class="chip" onclick="multi(this,'modules')">Instalment Management</div>
+        <div class="chip" onclick="multi(this,'modules')">Feedback Management</div>
+      </div>
+    </div>
+    <button class="btn-next" onclick="go(5)">Agla &#8594;</button>
+  </div>
+
+  <!-- STEP 5: Technical -->
+  <div class="card" id="step5">
+    <div class="card-header">
+      <div class="card-step-label">Step 5 of 6</div>
+      <div class="card-title">Technical Setup</div>
+      <div class="card-subtitle">System ka technical setup samjhein</div>
+    </div>
+    <div class="field">
+      <label>Deployment type?</label>
+      <div class="chip-group" id="deploy">
+        <div class="chip" onclick="pick(this,'deploy')">Cloud (Online)</div>
+        <div class="chip" onclick="pick(this,'deploy')">On-Premise (Local Server)</div>
+        <div class="chip" onclick="pick(this,'deploy')">Dono chahiye</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Total users kitne honge system mein?</label>
+      <div class="chip-group" id="users">
+        <div class="chip" onclick="pick(this,'users')">1 – 5</div>
+        <div class="chip" onclick="pick(this,'users')">5 – 15</div>
+        <div class="chip" onclick="pick(this,'users')">15 – 50</div>
+        <div class="chip" onclick="pick(this,'users')">50+</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Purana data migrate karna hai?</label>
+      <div class="chip-group" id="migrate">
+        <div class="chip" onclick="pick(this,'migrate')">Haan — Excel se</div>
+        <div class="chip" onclick="pick(this,'migrate')">Haan — Purane system se</div>
+        <div class="chip" onclick="pick(this,'migrate')">Nahi — Fresh start</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Hardware chahiye?</label>
+      <div class="chip-group" id="hardware">
+        <div class="chip" onclick="multi(this,'hardware')">POS Machine</div>
+        <div class="chip" onclick="multi(this,'hardware')">Barcode Scanner</div>
+        <div class="chip" onclick="multi(this,'hardware')">Barcode Printer</div>
+        <div class="chip" onclick="multi(this,'hardware')">Thermal Printer</div>
+        <div class="chip" onclick="multi(this,'hardware')">Cash Drawer</div>
+        <div class="chip" onclick="multi(this,'hardware')">Attendance Machine</div>
+        <div class="chip" onclick="multi(this,'hardware')">Weight Scale</div>
+        <div class="chip" onclick="multi(this,'hardware')">Nahi chahiye</div>
+      </div>
+    </div>
+    <button class="btn-next" onclick="go(6)">Agla &#8594;</button>
+  </div>
+
+  <!-- STEP 6: Final -->
+  <div class="card" id="step6">
+    <div class="card-header">
+      <div class="card-step-label">Step 6 of 6</div>
+      <div class="card-title">Final Details</div>
+      <div class="card-subtitle">Akhri maloomat aur form submit karein</div>
+    </div>
+    <div class="field">
+      <label>Expected go-live date / kab tak chahiye?</label>
+      <input type="text" id="golive" placeholder="e.g. 2 hafton mein, ya specific date">
+    </div>
+    <div class="field">
+      <label>Budget range (agar customer ne bataya ho)</label>
+      <div class="chip-group" id="budget">
+        <div class="chip" onclick="pick(this,'budget')">50K se kam</div>
+        <div class="chip" onclick="pick(this,'budget')">50K – 1 Lakh</div>
+        <div class="chip" onclick="pick(this,'budget')">1 Lakh – 3 Lakh</div>
+        <div class="chip" onclick="pick(this,'budget')">3 Lakh+</div>
+        <div class="chip" onclick="pick(this,'budget')">Nahi bataya</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Payment model preference?</label>
+      <div class="chip-group" id="payment">
+        <div class="chip" onclick="pick(this,'payment')">One-Time</div>
+        <div class="chip" onclick="pick(this,'payment')">SAAS / Monthly</div>
+        <div class="chip" onclick="pick(this,'payment')">Discuss karna hai</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>NTN / STRN Number (agar available ho)</label>
+      <input type="text" id="ntn" placeholder="e.g. 1234567-8">
+    </div>
+    <div class="field">
+      <label>Koi special notes ya customer ki requirement?</label>
+      <textarea id="notes" placeholder="Yahan likhen..."></textarea>
+    </div>
+    <div class="field">
+      <label>Sales Executive ka Naam <span class="required-tag">Zaruri</span></label>
+      <input type="text" id="sales_name" placeholder="Aapka naam">
+    </div>
+    <button class="btn-submit" id="submit-btn" onclick="submitForm()">&#10003; Google Sheet mein Save Karein</button>
+    <div class="msg-saving" id="msg-saving">&#8987; Google Sheet mein save ho raha hai... thora wait karein</div>
+    <div class="msg-error" id="msg-error"></div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="success-wrap" style="display:none;animation:slideUp 0.4s ease">
+    <div class="success-header">
+      <div class="success-icon">&#10003;</div>
+      <h2>Data Save Ho Gaya!</h2>
+      <p>Customer ki information Google Sheet mein successfully record ho gayi hai.</p>
+    </div>
+    <div class="summary-wrap">
+      <div class="summary-header">CUSTOMER SUMMARY</div>
+      <div id="summary-rows"></div>
+    </div>
+    <button class="btn-new" onclick="resetAll()">+ Naya Customer Add Karein</button>
+  </div>
+
+  <div class="footer">BusinessBOX ERP &nbsp;|&nbsp; IT Media Zone &nbsp;|&nbsp; www.businessboxerp.com</div>
+</div>
+
+<script>
+var SHEET_URL = "https://script.google.com/macros/s/AKfycbzKRdZnFsH8GUGqKaWb9f0AFqtuDv443AD7teCxH3hedNHwWxINNGU9_yACAzWaR0A1Ng/exec";
+var TOTAL = 6;
+var cur = 1;
+var D = {};
+
+function buildDots(){
+  var wrap = document.getElementById('step-dots');
+  wrap.innerHTML = '';
+  for(var i=1;i<=TOTAL;i++){
+    var d = document.createElement('div');
+    d.className = 'step-dot' + (i===cur?' active':(i<cur?' done':''));
+    wrap.appendChild(d);
+  }
+}
+
+function setProgress(){
+  document.getElementById('progress').style.width = (((cur-1)/TOTAL)*100)+'%';
+  buildDots();
+}
+
+function pick(el,group){
+  document.querySelectorAll('#'+group+' .chip').forEach(function(c){c.classList.remove('selected')});
+  el.classList.add('selected');
+  D[group] = el.textContent.trim();
+}
+
+function multi(el,group){
+  el.classList.toggle('selected');
+  var sel=[];
+  document.querySelectorAll('#'+group+' .chip.selected').forEach(function(c){sel.push(c.textContent.trim())});
+  D[group]=sel;
+}
+
+function collectInputs(){
+  ['company_name','contact_name','contact_num','email','city',
+   'golive','notes','sales_name','ntn','r4','special_req'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) D[id]=el.value;
+  });
+}
+
+function showIQ(){
+  var ind = D['industry']||'';
+  var all = ['garments','restaurant','pharmacy','fmcg','supermart','jewellery','other'];
+  all.forEach(function(k){ document.getElementById('iq-'+k).classList.remove('active'); });
+  var key = 'other';
+  if(ind.includes('Garments')||ind.includes('Textile')) key='garments';
+  else if(ind.includes('Restaurant')||ind.includes('Food')||ind.includes('Sweets')||ind.includes('Bakers')) key='restaurant';
+  else if(ind.includes('Pharmacy')||ind.includes('Medical')) key='pharmacy';
+  else if(ind.includes('FMCG')||ind.includes('Distribution')) key='fmcg';
+  else if(ind.includes('Supermart')||ind.includes('Grocery')) key='supermart';
+  else if(ind.includes('Jewellery')||ind.includes('Watches')) key='jewellery';
+  else if(ind.includes('Healthcare')||ind.includes('Hospital')) key='pharmacy';
+  document.getElementById('iq-'+key).classList.add('active');
+  document.getElementById('btn-step3').style.display='flex';
+}
+
+function go(n){
+  collectInputs();
+  document.getElementById('step'+cur).classList.remove('active');
+  cur=n;
+  setProgress();
+  var el=document.getElementById('step'+n);
+  if(el){ el.classList.add('active'); }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function submitForm(){
+  collectInputs();
+  if(!D['sales_name']){
+    alert('Sales Executive ka naam zaroor bharen!');
+    return;
+  }
+  var btn=document.getElementById('submit-btn');
+  var saving=document.getElementById('msg-saving');
+  var errBox=document.getElementById('msg-error');
+  btn.disabled=true;
+  saving.style.display='block';
+  errBox.style.display='none';
+
+  fetch(SHEET_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(D)
+  }).then(function(){
+    saving.style.display='none';
+    document.getElementById('step'+cur).classList.remove('active');
+    document.getElementById('progress').style.width='100%';
+    buildDots();
+    showSuccess();
+  }).catch(function(err){
+    saving.style.display='none';
+    btn.disabled=false;
+    errBox.style.display='block';
+    errBox.textContent='Error: '+err.message+'. Internet check karein aur dobara try karein.';
+  });
+}
+
+function showSuccess(){
+  document.getElementById('success-wrap').style.display='block';
+  var rows=[
+    ['Company',D.company_name],['Contact',D.contact_name],
+    ['Number',D.contact_num],['Email',D.email],['City',D.city],
+    ['Branches',D.branches],['Business Nature',Array.isArray(D.nature)?D.nature.join(', '):D.nature],
+    ['Selling Type',D.selltype],['Industry',D.industry],
+    ['Modules',Array.isArray(D.modules)?D.modules.join(', '):D.modules],
+    ['Deployment',D.deploy],['Users',D.users],['Migration',D.migrate],
+    ['Hardware',Array.isArray(D.hardware)?D.hardware.join(', '):D.hardware],
+    ['Go-Live',D.golive],['Budget',D.budget],['Payment Model',D.payment],
+    ['NTN',D.ntn],['Notes',D.notes],['Sales By',D.sales_name]
+  ];
+  var html='';
+  rows.forEach(function(r){
+    if(!r[1]||(Array.isArray(r[1])&&r[1].length===0)) return;
+    html+='<div class="summary-row"><div class="summary-label">'+r[0]+'</div><div class="summary-value">'+r[1]+'</div></div>';
+  });
+  document.getElementById('summary-rows').innerHTML=html;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetAll(){
+  D={};cur=1;
+  document.querySelectorAll('.card').forEach(function(c){c.classList.remove('active')});
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('success-wrap').style.display='none';
+  document.querySelectorAll('input,textarea').forEach(function(el){el.value='';});
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('selected');});
+  document.querySelectorAll('.sub-section').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('btn-step3').style.display='none';
+  document.getElementById('submit-btn').disabled=false;
+  setProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+setProgress();
+</script>
+</body>
+</html>
